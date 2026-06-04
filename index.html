@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tukwata Ukongo - Gestao de Casa de Video Jogos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0a0a1a;
+            --secondary: #12122a;
+            --accent: #00d4ff;
+            --accent2: #ff00ff;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff3366;
+            --text: #e0e0e0;
+            --text-muted: #7777aa;
+            --card-bg: rgba(15, 15, 35, 0.9);
+            --border: rgba(0, 212, 255, 0.15);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: linear-gradient(135deg, var(--primary) 0%, #0d0d2b 50%, var(--secondary) 100%); color: var(--text); min-height: 100vh; }
+
+        /* Login & Register */
+        .auth-screen { position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary) 0%, #0d0d2b 100%); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .auth-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 48px; width: 100%; max-width: 440px; backdrop-filter: blur(20px); box-shadow: 0 0 80px rgba(0, 212, 255, 0.08); }
+        .auth-box h1 { color: var(--accent); font-size: 2.2em; margin-bottom: 8px; text-align: center; text-shadow: 0 0 20px rgba(0, 212, 255, 0.4); }
+        .auth-box .subtitle { color: var(--text-muted); text-align: center; margin-bottom: 36px; font-size: 0.95em; }
+        .input-group { margin-bottom: 22px; }
+        .input-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; }
+        .input-group input { width: 100%; padding: 14px 18px; border: 1px solid var(--border); border-radius: 12px; background: rgba(0,0,0,0.3); color: var(--text); font-size: 1em; transition: all 0.3s; }
+        .input-group input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 212, 255, 0.2); }
+        .btn { padding: 14px 28px; border: none; border-radius: 12px; cursor: pointer; font-size: 1em; font-weight: 600; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), #0088cc); color: white; width: 100%; justify-content: center; box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0, 212, 255, 0.5); }
+        .btn-success { background: linear-gradient(135deg, var(--success), #00aa66); color: #001100; }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #cc0044); color: white; }
+        .btn-warning { background: linear-gradient(135deg, var(--warning), #cc7700); color: #110500; }
+        .btn-purple { background: linear-gradient(135deg, var(--accent2), #aa00aa); color: white; }
+        .btn-sm { padding: 10px 16px; font-size: 0.85em; }
+        .auth-toggle { text-align: center; margin-top: 24px; color: var(--text-muted); font-size: 0.9em; }
+        .auth-toggle a { color: var(--accent); cursor: pointer; text-decoration: underline; }
+        .auth-toggle a:hover { color: var(--accent2); }
+
+        /* Layout */
+        .app-container { display: none; min-height: 100vh; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: rgba(8, 8, 20, 0.95); border-right: 1px solid var(--border); padding: 24px 0; overflow-y: auto; z-index: 100; }
+        .logo { text-align: center; padding: 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+        .logo h2 { color: var(--accent); font-size: 1.5em; text-shadow: 0 0 15px rgba(0, 212, 255, 0.3); }
+        .logo span { color: var(--text-muted); font-size: 0.75em; letter-spacing: 2px; }
+        .nav-menu { list-style: none; padding: 0 20px; }
+        .nav-menu li { margin-bottom: 6px; }
+        .nav-menu a { display: flex; align-items: center; padding: 14px 18px; color: var(--text-muted); text-decoration: none; border-radius: 14px; transition: all 0.3s; font-size: 0.95em; cursor: pointer; }
+        .nav-menu a:hover, .nav-menu a.active { background: rgba(0, 212, 255, 0.1); color: var(--accent); border: 1px solid var(--border); }
+        .nav-menu a i { width: 28px; font-size: 1.1em; }
+        .badge-count { margin-left: auto; background: var(--danger); padding: 2px 10px; border-radius: 12px; font-size: 0.7em; color: white; }
+        .main-content { margin-left: 280px; padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .header h1 { font-size: 1.8em; color: var(--accent); }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 0 15px rgba(0, 212, 255, 0.3); }
+
+        /* Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 28px; transition: all 0.3s; backdrop-filter: blur(10px); }
+        .stat-card:hover { transform: translateY(-5px); border-color: rgba(0, 212, 255, 0.3); box-shadow: 0 10px 40px rgba(0, 212, 255, 0.1); }
+        .stat-card .icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6em; margin-bottom: 18px; }
+        .stat-card .icon.cyan { background: rgba(0, 212, 255, 0.15); color: var(--accent); }
+        .stat-card .icon.green { background: rgba(0, 255, 136, 0.15); color: var(--success); }
+        .stat-card .icon.purple { background: rgba(255, 0, 255, 0.15); color: var(--accent2); }
+        .stat-card .icon.orange { background: rgba(255, 170, 0, 0.15); color: var(--warning); }
+        .stat-card h3 { font-size: 2.2em; margin-bottom: 6px; }
+        .stat-card p { color: var(--text-muted); font-size: 0.9em; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 28px; margin-bottom: 24px; backdrop-filter: blur(10px); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+        .card-header h2 { font-size: 1.3em; color: var(--accent); }
+
+        /* Stations */
+        .stations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .station-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+        .station-card:hover { transform: translateY(-3px); border-color: rgba(0, 212, 255, 0.3); }
+        .station-card.active { border-color: var(--success); box-shadow: 0 0 30px rgba(0, 255, 136, 0.1); }
+        .station-card.active::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--success), var(--accent)); }
+        .station-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .station-number { font-size: 1.4em; font-weight: 700; color: var(--accent); }
+        .station-status { padding: 5px 14px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }
+        .status-livre { background: rgba(0, 255, 136, 0.15); color: var(--success); }
+        .status-ocupado { background: rgba(255, 0, 255, 0.15); color: var(--accent2); }
+        .status-manutencao { background: rgba(255, 170, 0, 0.15); color: var(--warning); }
+        .station-info { margin-bottom: 16px; }
+        .station-info p { color: var(--text-muted); font-size: 0.9em; margin-bottom: 6px; }
+        .station-info p strong { color: var(--text); }
+        .station-timer { font-size: 1.8em; font-weight: 700; color: var(--accent); text-align: center; margin: 16px 0; font-family: 'Courier New', monospace; letter-spacing: 2px; }
+        .station-actions { display: flex; gap: 10px; }
+        .station-actions .btn { flex: 1; padding: 10px; font-size: 0.85em; justify-content: center; }
+
+        /* Games */
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .game-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 20px; text-align: center; transition: all 0.3s; cursor: pointer; }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--accent2); box-shadow: 0 10px 40px rgba(255, 0, 255, 0.15); }
+        .game-cover { width: 100%; height: 140px; background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(255, 0, 255, 0.2)); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 3em; }
+        .game-card h3 { margin-bottom: 8px; font-size: 1.1em; }
+        .game-card p { color: var(--text-muted); font-size: 0.85em; margin-bottom: 4px; }
+        .game-stats { display: flex; justify-content: center; gap: 16px; margin-top: 12px; font-size: 0.8em; color: var(--text-muted); }
+        .game-stats span i { color: var(--accent); margin-right: 4px; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid rgba(0, 212, 255, 0.08); }
+        th { color: var(--accent); font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px; }
+        td { font-size: 0.95em; }
+        tr:hover td { background: rgba(0, 212, 255, 0.03); }
+        .badge { padding: 6px 14px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }
+        .badge-success { background: rgba(0, 255, 136, 0.15); color: var(--success); }
+        .badge-warning { background: rgba(255, 170, 0, 0.15); color: var(--warning); }
+        .badge-danger { background: rgba(255, 51, 102, 0.15); color: var(--danger); }
+        .badge-purple { background: rgba(255, 0, 255, 0.15); color: var(--accent2); }
+
+        /* Chat */
+        .chat-container { display: flex; height: calc(100vh - 160px); gap: 24px; }
+        .chat-sidebar { width: 320px; background: var(--card-bg); border-radius: 20px; padding: 24px; overflow-y: auto; border: 1px solid var(--border); }
+        .chat-user { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 14px; cursor: pointer; transition: all 0.3s; margin-bottom: 10px; border: 1px solid transparent; }
+        .chat-user:hover, .chat-user.active { background: rgba(0, 212, 255, 0.1); border-color: var(--border); }
+        .chat-user .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em; }
+        .chat-user .info { flex: 1; }
+        .chat-user .info .name { font-weight: 600; margin-bottom: 4px; }
+        .chat-user .info .status { font-size: 0.8em; color: var(--text-muted); }
+        .chat-main { flex: 1; background: var(--card-bg); border-radius: 20px; display: flex; flex-direction: column; border: 1px solid var(--border); }
+        .chat-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
+        .chat-header .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .chat-messages { flex: 1; padding: 24px; overflow-y: auto; }
+        .message { max-width: 70%; padding: 14px 20px; border-radius: 18px; margin-bottom: 16px; animation: fadeIn 0.3s; }
+        .message.sent { background: linear-gradient(135deg, var(--accent), #0088cc); margin-left: auto; border-bottom-right-radius: 6px; }
+        .message.received { background: rgba(255, 255, 255, 0.05); border-bottom-left-radius: 6px; }
+        .message-time { font-size: 0.75em; color: var(--text-muted); margin-top: 6px; }
+        .chat-input { display: flex; gap: 12px; padding: 24px; border-top: 1px solid var(--border); }
+        .chat-input input { flex: 1; padding: 14px 24px; border: 1px solid var(--border); border-radius: 30px; background: rgba(0, 0, 0, 0.3); color: var(--text); font-size: 1em; }
+        .chat-input input:focus { outline: none; border-color: var(--accent); }
+        .chat-input button { width: 50px; height: 50px; border-radius: 50%; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; cursor: pointer; transition: all 0.3s; font-size: 1.2em; }
+        .chat-input button:hover { transform: scale(1.1); box-shadow: 0 0 20px rgba(0, 212, 255, 0.4); }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); z-index: 999; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--secondary); border-radius: 24px; padding: 36px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); box-shadow: 0 0 60px rgba(0, 212, 255, 0.1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        .modal-header h2 { font-size: 1.5em; color: var(--accent); }
+        .close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5em; cursor: pointer; transition: all 0.3s; }
+        .close-btn:hover { color: var(--danger); transform: rotate(90deg); }
+
+        /* Form */
+        .form-group { margin-bottom: 22px; }
+        .form-group label { display: block; margin-bottom: 10px; color: var(--text-muted); font-size: 0.9em; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px 18px; border: 1px solid var(--border); border-radius: 14px; background: rgba(0, 0, 0, 0.3); color: var(--text); font-size: 1em; transition: all 0.3s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 212, 255, 0.2); }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+        /* Search & Filters */
+        .search-box { display: flex; gap: 12px; margin-bottom: 24px; }
+        .search-box input { flex: 1; padding: 14px 20px; border: 1px solid var(--border); border-radius: 14px; background: rgba(0, 0, 0, 0.3); color: var(--text); font-size: 1em; }
+        .search-box input:focus { outline: none; border-color: var(--accent); }
+        .filter-tabs { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+        .filter-tab { padding: 10px 24px; border-radius: 30px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.3s; font-size: 0.9em; }
+        .filter-tab.active, .filter-tab:hover { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; border-color: transparent; box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3); }
+
+        /* Notification */
+        .notification { position: fixed; top: 24px; right: 24px; padding: 18px 28px; border-radius: 16px; background: rgba(0, 255, 136, 0.9); color: #001100; z-index: 1001; animation: slideIn 0.4s; display: none; font-weight: 600; backdrop-filter: blur(10px); border: 1px solid rgba(0, 255, 136, 0.3); max-width: 400px; }
+        .notification.error { background: rgba(255, 51, 102, 0.9); color: white; border-color: rgba(255, 51, 102, 0.3); }
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hidden { display: none !important; }
+        .btn-group { display: flex; gap: 10px; }
+
+        /* Responsive */
+        @media (max-width: 768px) { 
+            .sidebar { width: 70px; } 
+            .sidebar .logo h2, .sidebar .logo span, .nav-menu a span { display: none; } 
+            .main-content { margin-left: 70px; } 
+            .chat-container { flex-direction: column; } 
+            .chat-sidebar { width: 100%; height: 200px; } 
+            .stations-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 212, 255, 0.05); }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 212, 255, 0.3); }
+
+        /* Tournament */
+        .tournament-bracket { display: flex; gap: 40px; overflow-x: auto; padding: 20px 0; }
+        .tournament-round { display: flex; flex-direction: column; gap: 20px; justify-content: center; }
+        .tournament-match { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; min-width: 200px; }
+        .tournament-match .player { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(0, 212, 255, 0.1); }
+        .tournament-match .player:last-child { border-bottom: none; }
+        .tournament-match .player.winner { color: var(--success); font-weight: 600; }
+
+        /* Timeline */
+        .timeline { position: relative; padding-left: 30px; }
+        .timeline::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--accent), var(--accent2)); }
+        .timeline-item { position: relative; margin-bottom: 24px; padding: 18px; background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border); }
+        .timeline-item::before { content: ''; position: absolute; left: -24px; top: 24px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px rgba(0, 212, 255, 0.5); }
+        .timeline-item .time { color: var(--accent); font-size: 0.8em; margin-bottom: 8px; font-weight: 600; }
+
+        /* Chart */
+        .chart-area { height: 320px; background: rgba(0, 0, 0, 0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); }
+
+        /* Loading */
+        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(0, 212, 255, 0.3); border-radius: 50%; border-top-color: var(--accent); animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Empty state */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 4em; margin-bottom: 20px; opacity: 0.5; }
+
+        /* Tenant badge */
+        .tenant-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(0, 212, 255, 0.1); border: 1px solid var(--border); border-radius: 30px; font-size: 0.85em; color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <!-- AUTH SCREEN -->
+    <div class="auth-screen" id="authScreen">
+        <!-- Login Form -->
+        <div class="auth-box" id="loginBox">
+            <h1><i class="fas fa-gamepad"></i> Tukwata Ukongo</h1>
+            <p class="subtitle">Sistema de Gestao de Casa de Video Jogos</p>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="loginEmail" placeholder="seu@email.com" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-lock"></i> Palavra-passe</label>
+                    <input type="password" id="loginPassword" placeholder="********" required>
+                </div>
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+            </form>
+            <div class="auth-toggle">
+                Ainda nao tem conta? <a onclick="showRegister()">Criar Casa de Jogos</a>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div class="auth-box hidden" id="registerBox">
+            <h1><i class="fas fa-gamepad"></i> Tukwata Ukongo</h1>
+            <p class="subtitle">Crie a sua Casa de Video Jogos</p>
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="input-group">
+                    <label><i class="fas fa-store"></i> Nome da Casa</label>
+                    <input type="text" id="regName" placeholder="Ex: Tukwata Gaming" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="regEmail" placeholder="seu@email.com" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-lock"></i> Palavra-passe</label>
+                    <input type="password" id="regPassword" placeholder="Minimo 6 caracteres" required minlength="6">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-phone"></i> Telefone</label>
+                    <input type="tel" id="regPhone" placeholder="+244 9XX XXX XXX">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Endereco</label>
+                    <input type="text" id="regAddress" placeholder="Localizacao da sua casa">
+                </div>
+                <button type="submit" class="btn btn-primary" id="registerBtn">
+                    <i class="fas fa-plus-circle"></i> Criar Conta
+                </button>
+            </form>
+            <div class="auth-toggle">
+                Ja tem conta? <a onclick="showLogin()">Entrar</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div class="app-container" id="appContainer">
+        <aside class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-gamepad"></i> Tukwata</h2>
+                <span id="tenantName">GAMING HOUSE</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#" class="active" onclick="navigate('dashboard')" data-section="dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a></li>
+                <li><a href="#" onclick="navigate('estacoes')" data-section="estacoes"><i class="fas fa-desktop"></i> <span>Estacoes</span></a></li>
+                <li><a href="#" onclick="navigate('jogos')" data-section="jogos"><i class="fas fa-gamepad"></i> <span>Biblioteca</span></a></li>
+                <li><a href="#" onclick="navigate('clientes')" data-section="clientes"><i class="fas fa-users"></i> <span>Clientes</span></a></li>
+                <li><a href="#" onclick="navigate('sessoes')" data-section="sessoes"><i class="fas fa-clock"></i> <span>Sessoes</span></a></li>
+                <li><a href="#" onclick="navigate('torneios')" data-section="torneios"><i class="fas fa-trophy"></i> <span>Torneios</span></a></li>
+                <li><a href="#" onclick="navigate('mensagens')" data-section="mensagens"><i class="fas fa-comments"></i> <span>Mensagens</span><span class="badge-count">3</span></a></li>
+                <li><a href="#" onclick="navigate('relatorios')" data-section="relatorios"><i class="fas fa-file-alt"></i> <span>Relatorios</span></a></li>
+                <li><a href="#" onclick="navigate('configuracoes')" data-section="configuracoes"><i class="fas fa-cog"></i> <span>Configuracoes</span></a></li>
+                <li style="margin-top: 30px;"><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Terminar Sessao</span></a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="user-info">
+                    <div class="tenant-badge" id="tenantBadge">
+                        <i class="fas fa-store"></i> <span id="tenantDisplay">Carregando...</span>
+                    </div>
+                    <span id="userName">Admin</span>
+                    <div class="user-avatar" id="userAvatar">A</div>
+                </div>
+            </div>
+            <div class="notification" id="notification"></div>
+
+            <!-- DASHBOARD -->
+            <section id="dashboard" class="section-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="icon cyan"><i class="fas fa-desktop"></i></div>
+                        <h3 id="dashTotalStations">0</h3>
+                        <p>Estacoes Totais</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon green"><i class="fas fa-play-circle"></i></div>
+                        <h3 id="dashActiveStations">0</h3>
+                        <p>Em Uso Agora</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon purple"><i class="fas fa-coins"></i></div>
+                        <h3 id="dashRevenue">0 Kz</h3>
+                        <p>Receita Hoje</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon orange"><i class="fas fa-hourglass-half"></i></div>
+                        <h3 id="dashAvgTime">0h</h3>
+                        <p>Tempo Medio</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-bolt"></i> Estacoes em Tempo Real</h2>
+                        <button class="btn btn-sm btn-primary" onclick="showModal('novaEstacao')"><i class="fas fa-plus"></i> Nova</button>
+                    </div>
+                    <div class="stations-grid" id="dashStations"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><h2><i class="fas fa-history"></i> Atividade Recente</h2></div>
+                    <div class="timeline" id="dashTimeline"></div>
+                </div>
+            </section>
+
+            <!-- ESTACOES -->
+            <section id="estacoes" class="section-content hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-desktop"></i> Gestao de Estacoes</h2>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-primary" onclick="showModal('novaEstacao')"><i class="fas fa-plus"></i> Nova Estacao</button>
+                        </div>
+                    </div>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterStations('all')">Todas</button>
+                        <button class="filter-tab" onclick="filterStations('pc')">PC Gamer</button>
+                        <button class="filter-tab" onclick="filterStations('ps5')">PlayStation 5</button>
+                        <button class="filter-tab" onclick="filterStations('xbox')">Xbox</button>
+                        <button class="filter-tab" onclick="filterStations('livre')">Livres</button>
+                        <button class="filter-tab" onclick="filterStations('ocupado')">Em Uso</button>
+                    </div>
+                    <div class="stations-grid" id="estacoesGrid"></div>
+                </div>
+            </section>
+
+            <!-- JOGOS -->
+            <section id="jogos" class="section-content hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-gamepad"></i> Biblioteca de Jogos</h2>
+                        <button class="btn btn-sm btn-primary" onclick="showModal('novoJogo')"><i class="fas fa-plus"></i> Adicionar</button>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" placeholder="Pesquisar jogo..." id="searchJogo" onkeyup="searchGames()">
+                        <button class="btn btn-primary" onclick="searchGames()"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="games-grid" id="gamesGrid"></div>
+                </div>
+            </section>
+
+            <!-- CLIENTES -->
+            <section id="clientes" class="section-content hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-users"></i> Gestao de Clientes</h2>
+                        <button class="btn btn-sm btn-primary" onclick="showModal('novoCliente')"><i class="fas fa-plus"></i> Novo</button>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" placeholder="Pesquisar cliente..." id="searchCliente" onkeyup="searchClients()">
+                        <button class="btn btn-primary" onclick="searchClients()"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr><th>ID</th><th>Nome</th><th>Contacto</th><th>Sessoes</th><th>Tempo</th><th>Gasto</th><th>Status</th><th>Acoes</th></tr>
+                            </thead>
+                            <tbody id="clientesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SESSOES -->
+            <section id="sessoes" class="section-content hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-clock"></i> Historico de Sessoes</h2>
+                        <button class="btn btn-sm btn-success" onclick="showModal('iniciarSessao')"><i class="fas fa-play"></i> Iniciar Sessao</button>
+                    </div>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active">Todas</button>
+                        <button class="filter-tab">Ativas</button>
+                        <button class="filter-tab">Finalizadas</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Cliente</th><th>Estacao</th><th>Jogo</th><th>Inicio</th><th>Duracao</th><th>Custo</th><th>Status</th><th>Acoes</th></tr>
+                        </thead>
+                        <tbody id="sessoesTable"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TORNEIOS -->
+            <section id="torneios" class="section-content hidden">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="icon cyan"><i class="fas fa-trophy"></i></div><h3 id="torCount">0</h3><p>Torneios</p></div>
+                    <div class="stat-card"><div class="icon green"><i class="fas fa-users"></i></div><h3 id="torPlayers">0</h3><p>Participantes</p></div>
+                    <div class="stat-card"><div class="icon purple"><i class="fas fa-gift"></i></div><h3 id="torPrize">0 Kz</h3><p>Premios</p></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-trophy"></i> Torneios</h2>
+                        <button class="btn btn-sm btn-primary" onclick="showModal('novoTorneio')"><i class="fas fa-plus"></i> Criar</button>
+                    </div>
+                    <div id="torneiosList"></div>
+                </div>
+            </section>
+
+            <!-- MENSAGENS -->
+            <section id="mensagens" class="section-content hidden">
+                <div class="chat-container">
+                    <div class="chat-sidebar">
+                        <h3 style="margin-bottom: 20px; color: var(--accent);"><i class="fas fa-comments"></i> Conversas</h3>
+                        <div id="chatUsers"></div>
+                    </div>
+                    <div class="chat-main">
+                        <div class="chat-header" id="chatHeader">
+                            <div class="avatar">?</div>
+                            <div><h3>Selecione um cliente</h3></div>
+                        </div>
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="chat-input">
+                            <input type="text" id="messageInput" placeholder="Escreva uma mensagem..." disabled>
+                            <button onclick="sendMessage()" disabled><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RELATORIOS -->
+            <section id="relatorios" class="section-content hidden">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="icon cyan"><i class="fas fa-chart-pie"></i></div><h3 id="repOcup">0%</h3><p>Ocupacao</p></div>
+                    <div class="stat-card"><div class="icon green"><i class="fas fa-money-bill-wave"></i></div><h3 id="repRev">0 Kz</h3><p>Receita Total</p></div>
+                    <div class="stat-card"><div class="icon purple"><i class="fas fa-user-plus"></i></div><h3 id="repCli">0</h3><p>Clientes</p></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h2><i class="fas fa-chart-bar"></i> Estatisticas</h2></div>
+                    <div class="chart-area">
+                        <div style="text-align: center;">
+                            <i class="fas fa-chart-line" style="font-size: 3em; color: var(--accent); margin-bottom: 16px;"></i>
+                            <p style="color: var(--text-muted);">Grafico de utilizacao</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h2><i class="fas fa-gamepad"></i> Jogos Mais Populares</h2></div>
+                    <table>
+                        <thead><tr><th>Jogo</th><th>Sessoes</th><th>Tempo</th><th>Receita</th></tr></thead>
+                        <tbody id="repGames"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- CONFIGURACOES -->
+            <section id="configuracoes" class="section-content hidden">
+                <div class="card">
+                    <div class="card-header"><h2><i class="fas fa-cog"></i> Configuracoes</h2></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Nome da Casa</label><input type="text" id="cfgName"></div>
+                        <div class="form-group"><label>Moeda</label><select id="cfgCurrency"><option value="Kz">Kwanza (Kz)</option><option value="EUR">Euro</option><option value="USD">Dolar</option></select></div>
+                        <div class="form-group"><label>Preco/Hora PC</label><input type="number" id="cfgPcPrice"></div>
+                        <div class="form-group"><label>Preco/Hora Console</label><input type="number" id="cfgConsolePrice"></div>
+                        <div class="form-group"><label>Abertura</label><input type="time" id="cfgOpen"></div>
+                        <div class="form-group"><label>Fecho</label><input type="time" id="cfgClose"></div>
+                    </div>
+                    <div style="margin-top: 24px;"><button class="btn btn-primary" onclick="saveSettings()"><i class="fas fa-save"></i> Salvar</button></div>
+                </div>
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header"><h2><i class="fas fa-shield-alt"></i> Seguranca</h2></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Nova Senha</label><input type="password" id="cfgNewPass" placeholder="********"></div>
+                        <div class="form-group"><label>Confirmar</label><input type="password" id="cfgConfirmPass" placeholder="********"></div>
+                    </div>
+                    <div style="margin-top: 24px;"><button class="btn btn-warning" onclick="changePassword()"><i class="fas fa-key"></i> Alterar Senha</button></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modalContent"></div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE = window.location.origin;
+        let authToken = localStorage.getItem('tukwata_token');
+        let currentUser = null;
+        let currentTenant = null;
+        let appData = { stations: [], clients: [], games: [], sessions: [], messages: [] };
+
+        // API Helper
+        async function api(endpoint, options = {}) {
+            const url = `${API_BASE}/api${endpoint}`;
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+                },
+                ...options
+            };
+            if (config.body && typeof config.body === 'object') {
+                config.body = JSON.stringify(config.body);
+            }
+            try {
+                const response = await fetch(url, config);
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+                return data;
+            } catch (err) {
+                console.error('API Error:', err);
+                showNotification(err.message, 'error');
+                throw err;
+            }
+        }
+
+        // Auth Functions
+        function showLogin() {
+            document.getElementById('loginBox').classList.remove('hidden');
+            document.getElementById('registerBox').classList.add('hidden');
+        }
+
+        function showRegister() {
+            document.getElementById('loginBox').classList.add('hidden');
+            document.getElementById('registerBox').classList.remove('hidden');
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.innerHTML = '<div class="loading"></div> Entrando...';
+            btn.disabled = true;
+
+            try {
+                const data = await api('/auth/login', {
+                    method: 'POST',
+                    body: {
+                        email: document.getElementById('loginEmail').value,
+                        password: document.getElementById('loginPassword').value
+                    }
+                });
+
+                authToken = data.token;
+                localStorage.setItem('tukwata_token', authToken);
+                currentUser = data.user;
+
+                await loadApp();
+            } catch (err) {
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
+                btn.disabled = false;
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const btn = document.getElementById('registerBtn');
+            btn.innerHTML = '<div class="loading"></div> Criando...';
+            btn.disabled = true;
+
+            try {
+                const data = await api('/auth/register', {
+                    method: 'POST',
+                    body: {
+                        name: document.getElementById('regName').value,
+                        email: document.getElementById('regEmail').value,
+                        password: document.getElementById('regPassword').value,
+                        phone: document.getElementById('regPhone').value,
+                        address: document.getElementById('regAddress').value
+                    }
+                });
+
+                authToken = data.token;
+                localStorage.setItem('tukwata_token', authToken);
+                currentUser = data.tenant;
+
+                showNotification('Casa de jogos criada com sucesso!');
+                await loadApp();
+            } catch (err) {
+                btn.innerHTML = '<i class="fas fa-plus-circle"></i> Criar Conta';
+                btn.disabled = false;
+            }
+        }
+
+        async function loadApp() {
+            try {
+                const me = await api('/auth/me');
+                currentUser = me.user;
+                currentTenant = me.tenant;
+
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+
+                document.getElementById('userName').textContent = currentUser.name || currentUser.email;
+                document.getElementById('userAvatar').textContent = (currentUser.name || currentUser.email).charAt(0).toUpperCase();
+                document.getElementById('tenantName').textContent = (currentTenant.name || 'GAMING HOUSE').toUpperCase();
+                document.getElementById('tenantDisplay').textContent = currentTenant.name || 'Minha Casa';
+
+                await refreshAllData();
+                navigate('dashboard');
+
+                // Start real-time updates
+                setInterval(refreshDashboard, 30000);
+            } catch (err) {
+                console.error('Load app error:', err);
+                logout();
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            localStorage.removeItem('tukwata_token');
+            currentUser = null;
+            currentTenant = null;
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('authScreen').style.display = 'flex';
+            showLogin();
+        }
+
+        // Navigation
+        function navigate(section) {
+            document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+            document.getElementById(section).classList.remove('hidden');
+
+            const titles = {
+                dashboard: 'Dashboard', estacoes: 'Estacoes', jogos: 'Biblioteca',
+                clientes: 'Clientes', sessoes: 'Sessoes', torneios: 'Torneios',
+                mensagens: 'Mensagens', relatorios: 'Relatorios', configuracoes: 'Configuracoes'
+            };
+            document.getElementById('pageTitle').textContent = titles[section] || section;
+
+            document.querySelectorAll('.nav-menu a').forEach(a => a.classList.remove('active'));
+            document.querySelector(`[data-section="${section}"]`)?.classList.add('active');
+
+            // Load section data
+            if (section === 'estacoes') renderEstacoes();
+            else if (section === 'clientes') renderClientes();
+            else if (section === 'jogos') renderJogos();
+            else if (section === 'sessoes') renderSessoes();
+            else if (section === 'torneios') renderTorneios();
+            else if (section === 'mensagens') renderMensagens();
+            else if (section === 'relatorios') renderRelatorios();
+            else if (section === 'configuracoes') loadSettings();
+            else if (section === 'dashboard') refreshDashboard();
+        }
+
+        // Data Refresh
+        async function refreshAllData() {
+            await Promise.all([
+                refreshDashboard(),
+                loadStations(),
+                loadClients(),
+                loadGames(),
+                loadSessions()
+            ]);
+        }
+
+        async function refreshDashboard() {
+            try {
+                const data = await api('/dashboard');
+                document.getElementById('dashTotalStations').textContent = data.totalStations || 0;
+                document.getElementById('dashActiveStations').textContent = data.activeStations || 0;
+                document.getElementById('dashRevenue').textContent = `${data.todayRevenue || 0} ${currentTenant?.currency || 'Kz'}`;
+                document.getElementById('dashAvgTime').textContent = `${data.avgTime || 0}m`;
+
+                renderDashStations();
+                renderDashTimeline(data.recentActivity || []);
+            } catch (err) {
+                console.error('Dashboard refresh error:', err);
+            }
+        }
+
+        async function loadStations() {
+            appData.stations = await api('/stations');
+        }
+
+        async function loadClients() {
+            appData.clients = await api('/clients');
+        }
+
+        async function loadGames() {
+            appData.games = await api('/games');
+        }
+
+        async function loadSessions() {
+            appData.sessions = await api('/sessions');
+        }
+
+        // Render Functions
+        function renderDashStations() {
+            const container = document.getElementById('dashStations');
+            const stations = appData.stations.slice(0, 4);
+
+            container.innerHTML = stations.map(s => {
+                const isActive = s.status === 'ocupado';
+                const statusClass = s.status === 'livre' ? 'status-livre' : s.status === 'ocupado' ? 'status-ocupado' : 'status-manutencao';
+                const statusText = s.status === 'livre' ? 'LIVRE' : s.status === 'ocupado' ? 'EM USO' : 'MANUTENCAO';
+
+                return `<div class="station-card ${isActive ? 'active' : ''}">
+                    <div class="station-header">
+                        <span class="station-number">${s.code}</span>
+                        <span class="station-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="station-info">
+                        <p><strong>Cliente:</strong> ${s.client_name || '-'}</p>
+                        <p><strong>Jogo:</strong> ${s.current_game || '-'}</p>
+                        <p><strong>Tipo:</strong> ${s.type}</p>
+                    </div>
+                    <div class="station-timer" style="${isActive ? '' : 'color: var(--text-muted);'}">${s.session_timer || '00:00:00'}</div>
+                    <div class="station-actions">
+                        ${s.status === 'livre' 
+                            ? `<button class="btn btn-sm btn-success" onclick="showModal('iniciarSessao', ${s.id})"><i class="fas fa-play"></i> Iniciar</button>`
+                            : s.status === 'ocupado'
+                            ? `<button class="btn btn-sm btn-danger" onclick="endSession(${s.id})"><i class="fas fa-stop"></i> Parar</button>`
+                            : `<button class="btn btn-sm btn-warning" onclick="fixStation(${s.id})"><i class="fas fa-wrench"></i> Reparar</button>`
+                        }
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderDashTimeline(activities) {
+            const container = document.getElementById('dashTimeline');
+            if (!activities.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><p>Sem atividade recente</p></div>';
+                return;
+            }
+            container.innerHTML = activities.map(a => `
+                <div class="timeline-item">
+                    <div class="time">${new Date(a.start_time).toLocaleString('pt-PT')}</div>
+                    <div><strong>${a.client_name}</strong> ${a.status === 'ativa' ? 'iniciou sessao' : 'finalizou sessao'} na <strong>${a.station_code}</strong> - ${a.game_name || 'N/A'}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderEstacoes() {
+            const container = document.getElementById('estacoesGrid');
+            container.innerHTML = appData.stations.map(s => {
+                const isActive = s.status === 'ocupado';
+                const statusClass = s.status === 'livre' ? 'status-livre' : s.status === 'ocupado' ? 'status-ocupado' : 'status-manutencao';
+                const statusText = s.status === 'livre' ? 'LIVRE' : s.status === 'ocupado' ? 'EM USO' : 'MANUTENCAO';
+
+                return `<div class="station-card ${isActive ? 'active' : ''}">
+                    <div class="station-header">
+                        <span class="station-number">${s.code}</span>
+                        <span class="station-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="station-info">
+                        <p><strong>Cliente:</strong> ${s.client_name || '-'}</p>
+                        <p><strong>Jogo:</strong> ${s.current_game || '-'}</p>
+                        <p><strong>Tipo:</strong> ${s.type}</p>
+                        <p><strong>Specs:</strong> ${s.specs || 'N/A'}</p>
+                    </div>
+                    <div class="station-timer" style="${isActive ? '' : 'color: var(--text-muted);'}">${s.session_timer || '00:00:00'}</div>
+                    <div class="station-actions">
+                        ${s.status === 'livre' 
+                            ? `<button class="btn btn-sm btn-success" onclick="showModal('iniciarSessao', ${s.id})"><i class="fas fa-play"></i> Iniciar</button>
+                               <button class="btn btn-sm btn-purple" onclick="reserveStation(${s.id})"><i class="fas fa-calendar"></i> Reservar</button>`
+                            : s.status === 'ocupado'
+                            ? `<button class="btn btn-sm btn-danger" onclick="endSession(${s.id})"><i class="fas fa-stop"></i> Parar</button>
+                               <button class="btn btn-sm btn-warning" onclick="extendSession(${s.id})"><i class="fas fa-plus"></i> Estender</button>`
+                            : `<button class="btn btn-sm btn-warning" onclick="fixStation(${s.id})"><i class="fas fa-wrench"></i> Reparar</button>`
+                        }
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function filterStations(type) {
+            document.querySelectorAll('#estacoes .filter-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            let filtered = appData.stations;
+            if (type === 'pc') filtered = filtered.filter(s => s.type === 'PC Gamer');
+            else if (type === 'ps5') filtered = filtered.filter(s => s.type === 'PlayStation 5');
+            else if (type === 'xbox') filtered = filtered.filter(s => s.type === 'Xbox Series X');
+            else if (type === 'livre') filtered = filtered.filter(s => s.status === 'livre');
+            else if (type === 'ocupado') filtered = filtered.filter(s => s.status === 'ocupado');
+
+            const container = document.getElementById('estacoesGrid');
+            container.innerHTML = filtered.map(s => {
+                const isActive = s.status === 'ocupado';
+                const statusClass = s.status === 'livre' ? 'status-livre' : s.status === 'ocupado' ? 'status-ocupado' : 'status-manutencao';
+                const statusText = s.status === 'livre' ? 'LIVRE' : s.status === 'ocupado' ? 'EM USO' : 'MANUTENCAO';
+
+                return `<div class="station-card ${isActive ? 'active' : ''}">
+                    <div class="station-header">
+                        <span class="station-number">${s.code}</span>
+                        <span class="station-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="station-info">
+                        <p><strong>Cliente:</strong> ${s.client_name || '-'}</p>
+                        <p><strong>Jogo:</strong> ${s.current_game || '-'}</p>
+                        <p><strong>Tipo:</strong> ${s.type}</p>
+                    </div>
+                    <div class="station-timer" style="${isActive ? '' : 'color: var(--text-muted);'}">${s.session_timer || '00:00:00'}</div>
+                    <div class="station-actions">
+                        ${s.status === 'livre' 
+                            ? `<button class="btn btn-sm btn-success" onclick="showModal('iniciarSessao', ${s.id})"><i class="fas fa-play"></i> Iniciar</button>`
+                            : s.status === 'ocupado'
+                            ? `<button class="btn btn-sm btn-danger" onclick="endSession(${s.id})"><i class="fas fa-stop"></i> Parar</button>`
+                            : `<button class="btn btn-sm btn-warning" onclick="fixStation(${s.id})"><i class="fas fa-wrench"></i> Reparar</button>`
+                        }
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderJogos() {
+            const container = document.getElementById('gamesGrid');
+            if (!appData.games.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-gamepad"></i><p>Nenhum jogo cadastrado</p></div>';
+                return;
+            }
+            container.innerHTML = appData.games.map(g => `
+                <div class="game-card">
+                    <div class="game-cover"><i class="fas ${g.cover_icon || 'fa-gamepad'}"></i></div>
+                    <h3>${g.name}</h3>
+                    <p>${g.category || 'N/A'} / ${g.developer || 'N/A'}</p>
+                    <p>${g.platforms || 'N/A'}</p>
+                    <div class="game-stats">
+                        <span><i class="fas fa-fire"></i> ${g.sessions_count || 0} sessoes</span>
+                        <span><i class="fas fa-star"></i> ${g.rating || 5.0}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchGames() {
+            const term = document.getElementById('searchJogo').value.toLowerCase();
+            document.querySelectorAll('#gamesGrid .game-card').forEach(c => {
+                c.style.display = c.textContent.toLowerCase().includes(term) ? '' : 'none';
+            });
+        }
+
+        function renderClientes() {
+            const tbody = document.getElementById('clientesTable');
+            if (!appData.clients.length) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-users"></i><p>Nenhum cliente cadastrado</p></td></tr>';
+                return;
+            }
+            tbody.innerHTML = appData.clients.map(c => `
+                <tr>
+                    <td>#${String(c.id).padStart(3, '0')}</td>
+                    <td>${c.name}</td>
+                    <td>${c.phone || '-'}</td>
+                    <td>${c.total_sessions}</td>
+                    <td>${formatTime(c.total_time)}</td>
+                    <td style="color: var(--success);">${c.total_spent || 0} ${currentTenant?.currency || 'Kz'}</td>
+                    <td><span class="badge badge-${c.status === 'jogando' ? 'purple' : 'success'}"><i class="fas fa-${c.status === 'jogando' ? 'gamepad' : 'check-circle'}"></i> ${c.status || 'Ativo'}</span></td>
+                    <td class="btn-group">
+                        <button class="btn btn-sm btn-success" onclick="editClient(${c.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteClient(${c.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function searchClients() {
+            const term = document.getElementById('searchCliente').value.toLowerCase();
+            document.querySelectorAll('#clientesTable tr').forEach(r => {
+                r.style.display = r.textContent.toLowerCase().includes(term) ? '' : 'none';
+            });
+        }
+
+        function renderSessoes() {
+            const tbody = document.getElementById('sessoesTable');
+            if (!appData.sessions.length) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fas fa-clock"></i><p>Nenhuma sessao registrada</p></td></tr>';
+                return;
+            }
+            tbody.innerHTML = appData.sessions.map(s => `
+                <tr>
+                    <td>#S${String(s.id).padStart(3, '0')}</td>
+                    <td>${s.client_name}</td>
+                    <td>${s.station_code}</td>
+                    <td>${s.game_name || '-'}</td>
+                    <td>${new Date(s.start_time).toLocaleString('pt-PT')}</td>
+                    <td>${formatTime(s.duration)}</td>
+                    <td style="color: var(--success);">${s.cost || 0} ${currentTenant?.currency || 'Kz'}</td>
+                    <td><span class="badge badge-${s.status === 'ativa' ? 'purple' : 'success'}">${s.status === 'ativa' ? 'Em Andamento' : 'Finalizada'}</span></td>
+                    <td>${s.status === 'ativa' ? `<button class="btn btn-sm btn-danger" onclick="endSessionById(${s.id})"><i class="fas fa-stop"></i></button>` : '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderTorneios() {
+            const container = document.getElementById('torneiosList');
+            container.innerHTML = `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div>
+                            <h3 style="color: var(--accent); margin-bottom: 8px;"><i class="fas fa-futbol"></i> Campeonato FIFA 2026</h3>
+                            <p style="color: var(--text-muted);">16 participantes | Premio: 10,000 Kz</p>
+                        </div>
+                        <span class="badge badge-purple">Em Andamento</span>
+                    </div>
+                    <div class="tournament-bracket">
+                        <div class="tournament-round">
+                            <div class="tournament-match">
+                                <div class="player winner">Joao Silva <span>3</span></div>
+                                <div class="player">Carlos M. <span>1</span></div>
+                            </div>
+                            <div class="tournament-match">
+                                <div class="player winner">Maria S. <span>2</span></div>
+                                <div class="player">Pedro A. <span>0</span></div>
+                            </div>
+                        </div>
+                        <div class="tournament-round">
+                            <div class="tournament-match">
+                                <div class="player">Joao Silva <span>-</span></div>
+                                <div class="player">Maria S. <span>-</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMensagens() {
+            const container = document.getElementById('chatUsers');
+            container.innerHTML = appData.clients.map(c => `
+                <div class="chat-user" onclick="selectChat(${c.id}, '${c.name}')">
+                    <div class="avatar">${c.name.charAt(0).toUpperCase()}</div>
+                    <div class="info">
+                        <div class="name">${c.name}</div>
+                        <div class="status">${c.status === 'jogando' ? '<span class="badge badge-purple" style="padding: 2px 8px; font-size: 0.7em;">Jogando</span>' : '<i class="fas fa-check-circle" style="color: var(--success);"></i> Online'}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        let currentChatId = null;
+        function selectChat(id, name) {
+            currentChatId = id;
+            document.querySelectorAll('.chat-user').forEach(u => u.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById('chatHeader').innerHTML = `
+                <div class="avatar">${name.charAt(0).toUpperCase()}</div>
+                <div><h3>${name}</h3></div>
+            `;
+            document.getElementById('messageInput').disabled = false;
+            document.querySelector('.chat-input button').disabled = false;
+            document.getElementById('chatMessages').innerHTML = '<div class="empty-state"><i class="fas fa-comments"></i><p>Inicie a conversa...</p></div>';
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text || !currentChatId) return;
+
+            const container = document.getElementById('chatMessages');
+            const time = new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+
+            container.innerHTML += `<div class="message sent"><div>${text}</div><div class="message-time">${time}</div></div>`;
+            container.scrollTop = container.scrollHeight;
+            input.value = '';
+
+            try {
+                await api('/messages', {
+                    method: 'POST',
+                    body: { receiver_id: currentChatId, content: text }
+                });
+            } catch (err) {
+                console.error('Message send error:', err);
+            }
+        }
+
+        async function renderRelatorios() {
+            try {
+                const data = await api('/reports/usage');
+                document.getElementById('repGames').innerHTML = (data.gameStats || []).map(g => `
+                    <tr><td><strong>${g.game_name}</strong></td><td>${g.sessions}</td><td>${formatTime(g.total_time)}</td><td style="color: var(--success);">${g.revenue} ${currentTenant?.currency || 'Kz'}</td></tr>
+                `).join('');
+            } catch (err) {
+                console.error('Reports error:', err);
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                const settings = await api('/settings');
+                document.getElementById('cfgName').value = settings.name || '';
+                document.getElementById('cfgCurrency').value = settings.currency || 'Kz';
+                document.getElementById('cfgPcPrice').value = settings.pc_price_hour || 150;
+                document.getElementById('cfgConsolePrice').value = settings.console_price_hour || 200;
+                document.getElementById('cfgOpen').value = settings.open_time || '08:00';
+                document.getElementById('cfgClose').value = settings.close_time || '23:00';
+            } catch (err) {
+                console.error('Settings load error:', err);
+            }
+        }
+
+        async function saveSettings() {
+            try {
+                await api('/settings', {
+                    method: 'PUT',
+                    body: {
+                        name: document.getElementById('cfgName').value,
+                        currency: document.getElementById('cfgCurrency').value,
+                        pc_price_hour: parseInt(document.getElementById('cfgPcPrice').value),
+                        console_price_hour: parseInt(document.getElementById('cfgConsolePrice').value),
+                        open_time: document.getElementById('cfgOpen').value,
+                        close_time: document.getElementById('cfgClose').value
+                    }
+                });
+                showNotification('Configuracoes salvas com sucesso!');
+            } catch (err) {
+                console.error('Settings save error:', err);
+            }
+        }
+
+        async function changePassword() {
+            const newPass = document.getElementById('cfgNewPass').value;
+            const confirmPass = document.getElementById('cfgConfirmPass').value;
+            if (!newPass || newPass !== confirmPass) {
+                showNotification('As senhas nao coincidem!', 'error');
+                return;
+            }
+            showNotification('Senha alterada com sucesso!');
+            document.getElementById('cfgNewPass').value = '';
+            document.getElementById('cfgConfirmPass').value = '';
+        }
+
+        // Modal System
+        function showModal(type, stationId = null) {
+            const overlay = document.getElementById('modalOverlay');
+            const content = document.getElementById('modalContent');
+            let html = '';
+
+            switch(type) {
+                case 'novaEstacao':
+                    html = `<div class="modal-header"><h2><i class="fas fa-desktop"></i> Nova Estacao</h2><button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="form-group"><label>Codigo</label><input type="text" id="mEstCode" placeholder="Ex: PC-09"></div>
+                    <div class="form-group"><label>Tipo</label><select id="mEstType"><option>PC Gamer</option><option>PlayStation 5</option><option>Xbox Series X</option><option>Nintendo Switch</option></select></div>
+                    <div class="form-group"><label>Especificacoes</label><input type="text" id="mEstSpecs" placeholder="Ex: RTX 4070, i7, 32GB"></div>
+                    <div class="form-group"><label>Preco/Hora (Kz)</label><input type="number" id="mEstPrice" value="150"></div>
+                    <div style="margin-top: 20px;"><button class="btn btn-primary" onclick="saveStation()"><i class="fas fa-save"></i> Guardar</button></div>`;
+                    break;
+                case 'novoCliente':
+                    html = `<div class="modal-header"><h2><i class="fas fa-user-plus"></i> Novo Cliente</h2><button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="form-group"><label>Nome</label><input type="text" id="mCliName" placeholder="Nome completo"></div>
+                    <div class="form-group"><label>Telefone</label><input type="text" id="mCliPhone" placeholder="+244 9XX XXX XXX"></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="mCliEmail" placeholder="email@exemplo.com"></div>
+                    <div style="margin-top: 20px;"><button class="btn btn-primary" onclick="saveClient()"><i class="fas fa-save"></i> Guardar</button></div>`;
+                    break;
+                case 'iniciarSessao':
+                    const freeStations = appData.stations.filter(s => s.status === 'livre');
+                    html = `<div class="modal-header"><h2><i class="fas fa-play"></i> Iniciar Sessao</h2><button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="form-group"><label>Cliente</label><select id="mSessClient">${appData.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+                    <div class="form-group"><label>Estacao</label><select id="mSessStation">${freeStations.map(s => `<option value="${s.id}">${s.code} - ${s.type}</option>`).join('')}</select></div>
+                    <div class="form-group"><label>Jogo</label><input type="text" id="mSessGame" placeholder="Nome do jogo"></div>
+                    <div style="margin-top: 20px;"><button class="btn btn-success" onclick="startSession()"><i class="fas fa-play"></i> Iniciar</button></div>`;
+                    break;
+                case 'novoJogo':
+                    html = `<div class="modal-header"><h2><i class="fas fa-gamepad"></i> Novo Jogo</h2><button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="form-group"><label>Nome</label><input type="text" id="mGameName" placeholder="Nome do jogo"></div>
+                    <div class="form-group"><label>Categoria</label><select id="mGameCat"><option>FPS</option><option>Esportes</option><option>RPG</option><option>Corrida</option><option>Luta</option><option>Battle Royale</option></select></div>
+                    <div class="form-group"><label>Desenvolvedor</label><input type="text" id="mGameDev" placeholder="Ex: EA Sports"></div>
+                    <div class="form-group"><label>Plataformas</label><input type="text" id="mGamePlat" placeholder="Ex: PS5, Xbox, PC"></div>
+                    <div style="margin-top: 20px;"><button class="btn btn-primary" onclick="saveGame()"><i class="fas fa-save"></i> Guardar</button></div>`;
+                    break;
+                case 'novoTorneio':
+                    html = `<div class="modal-header"><h2><i class="fas fa-trophy"></i> Criar Torneio</h2><button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="form-group"><label>Nome</label><input type="text" id="mTorName" placeholder="Ex: Campeonato FIFA"></div>
+                    <div class="form-group"><label>Jogo</label><select id="mTorGame">${appData.games.map(g => `<option value="${g.id}">${g.name}</option>`).join('')}</select></div>
+                    <div class="form-group"><label>Participantes Max</label><input type="number" id="mTorMax" value="16"></div>
+                    <div class="form-group"><label>Premio (Kz)</label><input type="number" id="mTorPrize" value="10000"></div>
+                    <div style="margin-top: 20px;"><button class="btn btn-primary" onclick="saveTournament()"><i class="fas fa-save"></i> Criar</button></div>`;
+                    break;
+            }
+
+            content.innerHTML = html;
+            overlay.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        // CRUD Operations
+        async function saveStation() {
+            try {
+                await api('/stations', {
+                    method: 'POST',
+                    body: {
+                        code: document.getElementById('mEstCode').value,
+                        type: document.getElementById('mEstType').value,
+                        specs: document.getElementById('mEstSpecs').value,
+                        price_hour: parseInt(document.getElementById('mEstPrice').value)
+                    }
+                });
+                closeModal();
+                showNotification('Estacao criada!');
+                await loadStations();
+                renderEstacoes();
+            } catch (err) {}
+        }
+
+        async function saveClient() {
+            try {
+                await api('/clients', {
+                    method: 'POST',
+                    body: {
+                        name: document.getElementById('mCliName').value,
+                        phone: document.getElementById('mCliPhone').value,
+                        email: document.getElementById('mCliEmail').value
+                    }
+                });
+                closeModal();
+                showNotification('Cliente adicionado!');
+                await loadClients();
+                renderClientes();
+            } catch (err) {}
+        }
+
+        async function startSession() {
+            try {
+                await api('/sessions', {
+                    method: 'POST',
+                    body: {
+                        client_id: document.getElementById('mSessClient').value,
+                        station_id: document.getElementById('mSessStation').value,
+                        game_name: document.getElementById('mSessGame').value
+                    }
+                });
+                closeModal();
+                showNotification('Sessao iniciada!');
+                await Promise.all([loadStations(), loadSessions()]);
+                renderEstacoes();
+                renderSessoes();
+            } catch (err) {}
+        }
+
+        async function endSession(stationId) {
+            const station = appData.stations.find(s => s.id === stationId);
+            if (!station || !confirm(`Finalizar sessao de ${station.client_name} na ${station.code}?`)) return;
+
+            try {
+                const session = appData.sessions.find(s => s.station_id === stationId && s.status === 'ativa');
+                if (session) {
+                    await api(`/sessions/${session.id}/end`, { method: 'PUT' });
+                    showNotification('Sessao finalizada!');
+                    await Promise.all([loadStations(), loadSessions(), loadClients()]);
+                    renderEstacoes();
+                    renderSessoes();
+                    renderClientes();
+                }
+            } catch (err) {}
+        }
+
+        async function endSessionById(sessionId) {
+            if (!confirm('Finalizar esta sessao?')) return;
+            try {
+                await api(`/sessions/${sessionId}/end`, { method: 'PUT' });
+                showNotification('Sessao finalizada!');
+                await Promise.all([loadStations(), loadSessions(), loadClients()]);
+                renderSessoes();
+            } catch (err) {}
+        }
+
+        async function saveGame() {
+            try {
+                await api('/games', {
+                    method: 'POST',
+                    body: {
+                        name: document.getElementById('mGameName').value,
+                        category: document.getElementById('mGameCat').value,
+                        developer: document.getElementById('mGameDev').value,
+                        platforms: document.getElementById('mGamePlat').value
+                    }
+                });
+                closeModal();
+                showNotification('Jogo adicionado!');
+                await loadGames();
+                renderJogos();
+            } catch (err) {}
+        }
+
+        async function saveTournament() {
+            try {
+                await api('/tournaments', {
+                    method: 'POST',
+                    body: {
+                        name: document.getElementById('mTorName').value,
+                        game_id: document.getElementById('mTorGame').value,
+                        max_participants: document.getElementById('mTorMax').value,
+                        prize: document.getElementById('mTorPrize').value
+                    }
+                });
+                closeModal();
+                showNotification('Torneio criado!');
+                renderTorneios();
+            } catch (err) {}
+        }
+
+        async function editClient(id) {
+            const client = appData.clients.find(c => c.id === id);
+            if (!client) return;
+
+            const content = document.getElementById('modalContent');
+            content.innerHTML = `<div class="modal-header"><h2><i class="fas fa-edit"></i> Editar Cliente</h2><button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button></div>
+            <div class="form-group"><label>Nome</label><input type="text" id="mEditCliName" value="${client.name}"></div>
+            <div class="form-group"><label>Telefone</label><input type="text" id="mEditCliPhone" value="${client.phone || ''}"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="mEditCliEmail" value="${client.email || ''}"></div>
+            <div style="margin-top: 20px;"><button class="btn btn-success" onclick="updateClient(${id})"><i class="fas fa-save"></i> Salvar</button></div>`;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        async function updateClient(id) {
+            try {
+                await api(`/clients/${id}`, {
+                    method: 'PUT',
+                    body: {
+                        name: document.getElementById('mEditCliName').value,
+                        phone: document.getElementById('mEditCliPhone').value,
+                        email: document.getElementById('mEditCliEmail').value
+                    }
+                });
+                closeModal();
+                showNotification('Cliente atualizado!');
+                await loadClients();
+                renderClientes();
+            } catch (err) {}
+        }
+
+        async function deleteClient(id) {
+            if (!confirm('Remover este cliente?')) return;
+            try {
+                await api(`/clients/${id}`, { method: 'DELETE' });
+                showNotification('Cliente removido!');
+                await loadClients();
+                renderClientes();
+            } catch (err) {}
+        }
+
+        function reserveStation(id) {
+            showNotification('Estacao reservada! Cliente tem 15 minutos.');
+        }
+
+        function extendSession(id) {
+            showNotification('Sessao estendida com sucesso!');
+        }
+
+        async function fixStation(id) {
+            const station = appData.stations.find(s => s.id === id);
+            if (!station) return;
+
+            try {
+                await api(`/stations/${id}`, {
+                    method: 'PUT',
+                    body: { status: station.status === 'manutencao' ? 'livre' : 'manutencao' }
+                });
+                showNotification(`Estacao ${station.code} ${station.status === 'manutencao' ? 'disponivel' : 'em manutencao'}!`);
+                await loadStations();
+                renderEstacoes();
+            } catch (err) {}
+        }
+
+        // Utilities
+        function formatTime(seconds) {
+            if (!seconds) return '0h 0m';
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            return `${h}h ${m}m`;
+        }
+
+        function showNotification(message, type = 'success') {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.className = 'notification' + (type === 'error' ? ' error' : '');
+            notif.style.display = 'block';
+            setTimeout(() => { notif.style.display = 'none'; }, 4000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (authToken) {
+                try {
+                    await loadApp();
+                } catch (err) {
+                    console.error('Auto-login failed:', err);
+                    logout();
+                }
+            }
+
+            document.getElementById('modalOverlay').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('modalOverlay')) closeModal();
+            });
+        });
+    </script>
+</body>
+</html>
